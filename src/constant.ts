@@ -14,7 +14,7 @@ export function getConfig(
     process.env.NEAR_ENV ||
     process.env.REACT_APP_REF_SDK_ENV,
   indexerUrl: string | undefined = INDEXER_URL,
-  nodeUrl: string | undefined = NODE_URL,
+  nodeUrl: string | undefined = NODE_URL
 ) {
   ENV = env;
   INDEXER_URL = indexerUrl;

@@ -6,13 +6,7 @@ import {
   getConfig,
   switchEnv,
 } from './constant';
-import {
-  keyStores,
-  Near,
-  providers,
-  WalletConnection,
-  utils,
-} from 'near-api-js';
+import { Account, Near, providers, utils } from 'near-api-js';
 import { NoAccountIdFound, TokenNotExistError, DCLInValid } from './error';
 import { getKeyStore } from './near';
 
@@ -46,7 +40,16 @@ let near = new Near({
   headers: {},
   ...getConfig(),
 });
-export const init_env = (env: string, indexerUrl?: string, nodeUrl?: string) => {
+
+let _account: Account;
+
+export const init_env = (
+  env: string,
+  account: Account,
+  indexerUrl?: string,
+  nodeUrl?: string
+) => {
+  _account = account;
   near = new Near({
     keyStore: getKeyStore(),
     headers: {},
@@ -59,18 +62,22 @@ export const refFiViewFunction = async ({
   methodName,
   args,
 }: RefFiViewFunctionOptions) => {
-  const nearConnection = await near.account(REF_FI_CONTRACT_ID);
-
-  return nearConnection.viewFunction(REF_FI_CONTRACT_ID, methodName, args);
+  return _account.viewFunction({
+    contractId: REF_FI_CONTRACT_ID,
+    methodName,
+    args,
+  });
 };
 
 export const ftViewFunction = async (
   tokenId: string,
   { methodName, args }: RefFiViewFunctionOptions
 ) => {
-  const nearConnection = await near.account(REF_FI_CONTRACT_ID);
-
-  return nearConnection.viewFunction(tokenId, methodName, args);
+  return _account.viewFunction({
+    contractId: tokenId,
+    methodName,
+    args,
+  });
 };
 
 export const ftGetStorageBalance = (
@@ -228,15 +235,13 @@ export const refDCLSwapViewFunction = async ({
   methodName,
   args,
 }: RefFiViewFunctionOptions) => {
-  const nearConnection = await near.account(REF_FI_CONTRACT_ID);
-
   if (!config.REF_DCL_SWAP_CONTRACT_ID) throw DCLInValid;
 
-  return nearConnection.viewFunction(
-    config.REF_DCL_SWAP_CONTRACT_ID,
+  return _account.viewFunction({
+    contractId: config.REF_DCL_SWAP_CONTRACT_ID,
     methodName,
-    args
-  );
+    args,
+  });
 };
 
 export const DCLSwapGetStorageBalance = (

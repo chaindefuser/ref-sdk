@@ -1,3 +1,4 @@
+/* eslint-disable no-loop-func */
 import {
   keyStores,
   KeyPair,
@@ -138,14 +139,14 @@ export const getSignedTransactionsByMemoryKey = async ({
       AccountId,
       utils.PublicKey.from(publicKey.toString()),
       transactions[i].receiverId,
-      accessKey.nonce + i + 1,
+      (accessKey.nonce + BigInt(i + 1)).toString(),
       transaction.actions.map(action => {
         const { methodName, args, gas, deposit } = action.params;
         return nearTransactions.functionCall(
           methodName,
           args,
-          new BN(gas),
-          new BN(deposit)
+          BigInt(gas),
+          BigInt(deposit)
         );
       }),
       utils.serialize.base_decode(block.header.hash)
